@@ -1,5 +1,6 @@
 package alpvax.mc.goprone;
 
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.settings.KeyBinding;
 import net.minecraft.client.util.InputMappings;
 import net.minecraft.entity.player.PlayerEntity;
@@ -16,6 +17,9 @@ public class ClientProxy implements IProxy {
 
   @Override
   public boolean onProneTick(PlayerEntity player, boolean previous) {
+    if (player != Minecraft.getInstance().player) {
+      return previous;
+    }
     boolean shouldBeProne = prone.isKeyDown();
     if (previous != shouldBeProne) {
       PacketHandler.sendToServer(new SetPronePacket(shouldBeProne));

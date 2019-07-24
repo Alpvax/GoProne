@@ -31,7 +31,7 @@ public class GoProne {
   public static IProxy proxy = DistExecutor.runForDist(()-> ()-> new ClientProxy(), () -> () -> new IProxy(){
     @Override
     public boolean onProneTick(PlayerEntity player, boolean previous) {
-      return entityProneStates.getOrDefault(player.getUniqueID(), false);
+      return previous;
     }
   });
 
@@ -48,6 +48,9 @@ public class GoProne {
   public void onPlayerTick(TickEvent.PlayerTickEvent event) {
     if (event.phase == TickEvent.Phase.END) {
       boolean isProne = entityProneStates.getOrDefault(event.player.getUniqueID(), false);
+      /*if (event.player.world.isRemote) {
+        proxy.onProneTick(event.player, isProne);
+      }*/
       entityProneStates.put(event.player.getUniqueID(), proxy.onProneTick(event.player, isProne));
       if (isProne) {
         try {

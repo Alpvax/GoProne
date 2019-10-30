@@ -13,6 +13,8 @@ import net.minecraftforge.fml.client.registry.ClientRegistry;
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber;
 import org.lwjgl.glfw.GLFW;
 
+import java.util.UUID;
+
 @EventBusSubscriber(value = Dist.CLIENT, modid = GoProne.MODID)
 public class ClientProxy {
   public static final KeyBinding prone = new KeyBinding("key.prone", KeyConflictContext.IN_GAME, InputMappings.Type.KEYSYM, GLFW.GLFW_KEY_C, "key.categories.movement");
@@ -48,10 +50,12 @@ public class ClientProxy {
   private static void updateClientProneState() {
     PlayerEntity player = Minecraft.getInstance().player;
     if (player != null) {
+      UUID uuid = player.getUniqueID();
       boolean shouldBeProne = prone.isKeyDown() != proneToggle;
-      if (shouldBeProne != GoProne.entityProneStates.getOrDefault(player.getUniqueID(), false)) {
+      if (shouldBeProne != GoProne.entityProneStates.getOrDefault(uuid, false)) {
         PacketHandler.sendToServer(new SetPronePacket(shouldBeProne));
       }
+      GoProne.entityProneStates.put(uuid, shouldBeProne);
     }
   }
 }

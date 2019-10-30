@@ -3,7 +3,7 @@ package alpvax.mc.goprone;
 import com.google.common.collect.Maps;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.Pose;
-import net.minecraft.entity.player.PlayerEntity;
+import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -27,15 +27,9 @@ public class GoProne {
   // Directly reference a log4j logger.
   private static final Logger LOGGER = LogManager.getLogger();
 
-  public static IProxy proxy = DistExecutor.runForDist(()-> ()-> new ClientProxy(), () -> () -> new IProxy(){
-    @Override
-    public boolean onProneTick(PlayerEntity player, boolean previous) {
-      return previous;
-    }
-  });
-
   public GoProne() {
     MinecraftForge.EVENT_BUS.register(this);
+    DistExecutor.runWhenOn(Dist.CLIENT, () -> () -> ClientProxy.init());
     PacketHandler.register();
   }
 
@@ -43,15 +37,17 @@ public class GoProne {
 
   static Map<UUID, Boolean> entityProneStates = Maps.newConcurrentMap();
 
+  public static void setProne(UUID playerID, boolean prone) {
+    entityProneStates.put(playerID, prone);
+  }
+
   @SubscribeEvent
   public void onPlayerTick(TickEvent.PlayerTickEvent event) {
     if (event.phase == TickEvent.Phase.END) {
-      boolean isProne = entityProneStates.getOrDefault(event.player.getUniqueID(), false);
-      /*if (event.player.world.isRemote) {
-        proxy.onProneTick(event.player, isProne);
-      }*/
-      entityProneStates.put(event.player.getUniqueID(), proxy.onProneTick(event.player, isProne));
-      if (isProne) {
+      if (event.player.world.isRemote) {
+        DistExecutor.runWhenOn(Dist.CLIENT, () -> () -> ClientProxy.updateProneState(event.player));
+      }//*/
+      if (entityProneStates.getOrDefault(event.player.getUniqueID(), false)) {
         try {
           setPose.invoke(event.player, Pose.SWIMMING);
         } catch (IllegalAccessException | InvocationTargetException e) {

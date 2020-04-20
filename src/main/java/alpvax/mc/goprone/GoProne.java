@@ -1,5 +1,6 @@
 package alpvax.mc.goprone;
 
+import alpvax.mc.goprone.config.ConfigOptions;
 import com.google.common.collect.Maps;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.Pose;
@@ -8,8 +9,11 @@ import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.DistExecutor;
+import net.minecraftforge.fml.ModLoadingContext;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.ObfuscationReflectionHelper;
+import net.minecraftforge.fml.config.ModConfig;
+import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -31,6 +35,8 @@ public class GoProne {
     MinecraftForge.EVENT_BUS.register(this);
     DistExecutor.runWhenOn(Dist.CLIENT, () -> () -> ClientProxy.init());
     PacketHandler.register();
+    ModLoadingContext.get().registerConfig(ModConfig.Type.SERVER, ConfigOptions.SPEC);
+    FMLJavaModLoadingContext.get().getModEventBus().addListener(ConfigOptions::onModConfigEvent);
   }
 
   private static final Method setPose = ObfuscationReflectionHelper.findMethod(Entity.class, "func_213301_b", Pose.class);
@@ -47,7 +53,7 @@ public class GoProne {
       if (event.player.world.isRemote) {
         DistExecutor.runWhenOn(Dist.CLIENT, () -> () -> ClientProxy.updateProneState(event.player));
       }//*/
-      if (entityProneStates.getOrDefault(event.player.getUniqueID(), false)) {
+      if (entityProneStates.getOrDefault(event.player.getUniqueID(), false) && ConfigOptions.test(event.player)) {
         try {
           setPose.invoke(event.player, Pose.SWIMMING);
         } catch (IllegalAccessException | InvocationTargetException e) {

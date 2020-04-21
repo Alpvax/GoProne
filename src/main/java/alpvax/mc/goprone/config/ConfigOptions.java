@@ -7,9 +7,11 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.common.ForgeConfigSpec;
 import net.minecraftforge.fml.config.ModConfig;
 import net.minecraftforge.registries.ForgeRegistries;
+import org.apache.commons.lang3.tuple.Pair;
 
 public class ConfigOptions {
     public static final ForgeConfigSpec SPEC;
+    private static final ConfigOptions INSTANCE;
     private static final ConfigSetting[] ALLOW_SETTINGS = new ConfigSetting[]{
             new ConfigSetting("flying", true, p -> !p.onGround, "Allow while flying"),
             new ConfigSetting("riding", false, Entity::isPassenger, "Allow while riding another entity")
@@ -23,21 +25,38 @@ public class ConfigOptions {
                     ).build((value, player) -> player.isPassenger() && player.getRidingEntity().getType() == value)
             )
     };
-
-    static {
-        SPEC = new ForgeConfigSpec.Builder().configure(ConfigOptions::makeConfig).getRight();
-    }
-    public static Void makeConfig(ForgeConfigSpec.Builder builder) {
+    private final ForgeConfigSpec.BooleanValue isJumpingAllowedCV;
+    private boolean jumpingAllowed = true;
+    private ConfigOptions(ForgeConfigSpec.Builder builder) {
+        builder.comment("Toggles to allow/disable going prone in various circumstances").push("allowProne");
         for (ConfigSetting s : ALLOW_SETTINGS) {
             s.createConfigValue(builder);
         }
-        return null;
+        builder.pop();
+        builder.comment("Other options not related to when you can go prone").push("other");
+        isJumpingAllowedCV = builder.comment("Can players jump while prone").define("isJumpingAllowed", jumpingAllowed);
+        builder.pop();
+    }
+
+    private void bakeConfig() {
+        for (ConfigSetting s: ALLOW_SETTINGS) {
+            s.bakeConfigValue();
+        }
+        jumpingAllowed = isJumpingAllowedCV.get();
+    }
+
+    public static boolean isJumpingAllowed() {
+        return INSTANCE.jumpingAllowed;
+    }
+
+    static {
+        Pair<ConfigOptions, ForgeConfigSpec> pair = new ForgeConfigSpec.Builder().configure(ConfigOptions::new);
+        SPEC = pair.getRight();
+        INSTANCE = pair.getLeft();
     }
     public static void onModConfigEvent(final ModConfig.ModConfigEvent configEvent) {
         if (configEvent.getConfig().getSpec() == SPEC) {
-            for (ConfigSetting s: ALLOW_SETTINGS) {
-                s.bakeConfigValue();
-            }
+            INSTANCE.bakeConfig();
         }
     }
     public static boolean test(PlayerEntity player) {

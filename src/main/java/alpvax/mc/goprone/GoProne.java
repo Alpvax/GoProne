@@ -4,9 +4,13 @@ import alpvax.mc.goprone.config.ConfigOptions;
 import com.google.common.collect.Maps;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.Pose;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.util.math.Vec3d;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.TickEvent;
+import net.minecraftforge.event.entity.living.LivingEvent;
+import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.DistExecutor;
 import net.minecraftforge.fml.ModLoadingContext;
@@ -59,6 +63,17 @@ public class GoProne {
         } catch (IllegalAccessException | InvocationTargetException e) {
           LOGGER.error("Error setting player prone: " + event.player.getDisplayNameAndUUID(), e);
         }
+      }
+    }
+  }
+
+  @SubscribeEvent(priority = EventPriority.LOWEST)
+  public void onPlayerJump(LivingEvent.LivingJumpEvent event) {
+    if (event.getEntity() instanceof PlayerEntity) {
+      PlayerEntity player = (PlayerEntity) event.getEntityLiving();
+      if (player.onGround && player.getPose() == Pose.SWIMMING && !ConfigOptions.isJumpingAllowed()) {
+        Vec3d motion = player.getMotion();
+        player.setMotion(motion.add(0, -motion.y, 0)); //set y motion to 0
       }
     }
   }

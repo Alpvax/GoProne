@@ -2,7 +2,6 @@ package alpvax.mc.goprone;
 
 import alpvax.mc.goprone.config.ConfigOptions;
 import com.google.common.collect.Maps;
-import net.minecraft.entity.Entity;
 import net.minecraft.entity.Pose;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.util.math.vector.Vector3d;
@@ -15,19 +14,14 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.DistExecutor;
 import net.minecraftforge.fml.ModLoadingContext;
 import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.common.ObfuscationReflectionHelper;
 import net.minecraftforge.fml.config.ModConfig;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.util.Map;
 import java.util.UUID;
 
-
-// The value here should match an entry in the META-INF/mods.toml file
 @Mod(GoProne.MODID)
 public class GoProne {
   public static final String MODID = "goprone";
@@ -37,13 +31,11 @@ public class GoProne {
 
   public GoProne() {
     MinecraftForge.EVENT_BUS.register(this);
-    DistExecutor.safeRunWhenOn(Dist.CLIENT, () -> () -> ClientProxy.init());
+    DistExecutor.runWhenOn(Dist.CLIENT, () -> () -> ClientProxy.init());
     PacketHandler.register();
     ModLoadingContext.get().registerConfig(ModConfig.Type.SERVER, ConfigOptions.SPEC);
     FMLJavaModLoadingContext.get().getModEventBus().addListener(ConfigOptions::onModConfigEvent);
   }
-
-  private static final Method setPose = ObfuscationReflectionHelper.findMethod(Entity.class, "func_213301_b", Pose.class);
 
   static Map<UUID, Boolean> entityProneStates = Maps.newConcurrentMap();
 
@@ -55,14 +47,10 @@ public class GoProne {
   public void onPlayerTick(TickEvent.PlayerTickEvent event) {
     if (event.phase == TickEvent.Phase.END) {
       if (event.player.world.isRemote) {
-        DistExecutor.safeRunWhenOn(Dist.CLIENT, () -> () -> ClientProxy.updateProneState(event.player));
+        DistExecutor.runWhenOn(Dist.CLIENT, () -> () -> ClientProxy.updateProneState(event.player));
       }//*/
       if (entityProneStates.getOrDefault(event.player.getUniqueID(), false) && ConfigOptions.test(event.player)) {
-        try {
-          setPose.invoke(event.player, Pose.SWIMMING);
-        } catch (IllegalAccessException | InvocationTargetException e) {
-          LOGGER.error("Error setting player prone: " + event.player.getDisplayNameAndUUID(), e);
-        }
+        event.player.setPose(Pose.SWIMMING);
       }
     }
   }

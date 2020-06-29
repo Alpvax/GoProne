@@ -4,6 +4,7 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraftforge.common.ForgeConfigSpec;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.function.Function;
 import java.util.function.Predicate;
@@ -52,7 +53,7 @@ public class ConfigExceptionList<T> extends ConfigException<List<T>, List<? exte
         private final Function<String, T> toValueMapper;
         private Predicate<Object> validator;
         private String[] comment;
-        private List<Supplier<String>> defaults = new ArrayList<>();
+        private final List<Supplier<String>> defaults = new ArrayList<>();
 
         public Builder(Function<T, String> toStringMapper, Function<String, T> toValueMapper) {
             this.toStringMapper = toStringMapper;
@@ -68,9 +69,7 @@ public class ConfigExceptionList<T> extends ConfigException<List<T>, List<? exte
             return this;
         }
         public Builder<T> withDefaults(Supplier<String>... defaults) {
-            for (Supplier<String> sup : defaults) {
-                this.defaults.add(sup);
-            }
+            this.defaults.addAll(Arrays.asList(defaults));
             return this;
         }
         public Builder<T> withDefaults(String... defaults) {

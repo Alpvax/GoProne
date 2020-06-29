@@ -7,7 +7,7 @@ public enum ConfigResult {
     ALLOW,
     DENY;
 
-    public static ConfigResult of(ConfigResult results) {
+    public static ConfigResult of(ConfigResult... results) {
         return Stream.of(results).distinct().reduce(ConfigResult::with).orElse(PASS);
     }
     public ConfigResult with(ConfigResult other) {

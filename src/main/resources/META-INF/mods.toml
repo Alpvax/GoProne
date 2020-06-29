@@ -40,7 +40,7 @@ When you are allowed to go prone is configurable server side (i.e. in the save f
     # Does this dependency have to exist - if not, ordering below must be specified
     mandatory=false #mandatory
     # The version range of the dependency
-    versionRange="[28.1.0,)" #mandatory
+    versionRange="[32,)" #mandatory
     # An ordering relationship for the dependency - BEFORE or AFTER required if the relationship is not mandatory
     ordering="AFTER"
     # Side this dependency is applied on - BOTH, CLIENT or SERVER
@@ -51,7 +51,7 @@ When you are allowed to go prone is configurable server side (i.e. in the save f
     # Does this dependency have to exist - if not, ordering below must be specified
     mandatory=true #mandatory
     # The version range of the dependency
-    versionRange="[30,)" #mandatory
+    versionRange="[32,)" #mandatory
     # An ordering relationship for the dependency - BEFORE or AFTER required if the relationship is not mandatory
     ordering="AFTER"
     # Side this dependency is applied on - BOTH, CLIENT or SERVER
@@ -60,6 +60,6 @@ When you are allowed to go prone is configurable server side (i.e. in the save f
 [[dependencies.goprone]]
     modId="minecraft"
     mandatory=true
-    versionRange="[1.15.1,)"
+    versionRange="[1.16.1,)"
     ordering="NONE"
     side="BOTH"

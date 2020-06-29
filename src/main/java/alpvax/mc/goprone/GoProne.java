@@ -5,7 +5,7 @@ import com.google.common.collect.Maps;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.Pose;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.util.math.Vec3d;
+import net.minecraft.util.math.vector.Vector3d;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.TickEvent;
@@ -37,7 +37,7 @@ public class GoProne {
 
   public GoProne() {
     MinecraftForge.EVENT_BUS.register(this);
-    DistExecutor.runWhenOn(Dist.CLIENT, () -> () -> ClientProxy.init());
+    DistExecutor.safeRunWhenOn(Dist.CLIENT, () -> () -> ClientProxy.init());
     PacketHandler.register();
     ModLoadingContext.get().registerConfig(ModConfig.Type.SERVER, ConfigOptions.SPEC);
     FMLJavaModLoadingContext.get().getModEventBus().addListener(ConfigOptions::onModConfigEvent);
@@ -55,7 +55,7 @@ public class GoProne {
   public void onPlayerTick(TickEvent.PlayerTickEvent event) {
     if (event.phase == TickEvent.Phase.END) {
       if (event.player.world.isRemote) {
-        DistExecutor.runWhenOn(Dist.CLIENT, () -> () -> ClientProxy.updateProneState(event.player));
+        DistExecutor.safeRunWhenOn(Dist.CLIENT, () -> () -> ClientProxy.updateProneState(event.player));
       }//*/
       if (entityProneStates.getOrDefault(event.player.getUniqueID(), false) && ConfigOptions.test(event.player)) {
         try {
@@ -71,8 +71,8 @@ public class GoProne {
   public void onPlayerJump(LivingEvent.LivingJumpEvent event) {
     if (event.getEntity() instanceof PlayerEntity) {
       PlayerEntity player = (PlayerEntity) event.getEntityLiving();
-      if (player.onGround && player.getPose() == Pose.SWIMMING && !ConfigOptions.isJumpingAllowed()) {
-        Vec3d motion = player.getMotion();
+      if (player.func_233570_aj_() && player.getPose() == Pose.SWIMMING && !ConfigOptions.isJumpingAllowed()) {
+        Vector3d motion = player.getMotion();
         player.setMotion(motion.add(0, -motion.y, 0)); //set y motion to 0
       }
     }

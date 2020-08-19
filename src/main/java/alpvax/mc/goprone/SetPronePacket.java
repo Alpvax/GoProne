@@ -24,7 +24,9 @@ public class SetPronePacket {
   public static void handle(SetPronePacket msg, Supplier<NetworkEvent.Context> contextSupplier) {
     contextSupplier.get().enqueueWork(() -> {
       ServerPlayerEntity player = contextSupplier.get().getSender();
-      GoProne.entityProneStates.put(player.getUniqueID(), msg.pressed);
+      if (player != null) {
+        GoProne.setProne(player.getUniqueID(), msg.pressed);
+      }
     });
   }
 }

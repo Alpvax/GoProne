@@ -31,13 +31,13 @@ public class GoProne {
 
   public GoProne() {
     MinecraftForge.EVENT_BUS.register(this);
-    DistExecutor.runWhenOn(Dist.CLIENT, () -> () -> ClientProxy.init());
+    DistExecutor.safeRunWhenOn(Dist.CLIENT, () -> ClientProxy::init);
     PacketHandler.register();
     ModLoadingContext.get().registerConfig(ModConfig.Type.SERVER, ConfigOptions.SPEC);
     FMLJavaModLoadingContext.get().getModEventBus().addListener(ConfigOptions::onModConfigEvent);
   }
 
-  static Map<UUID, Boolean> entityProneStates = Maps.newConcurrentMap();
+  static final Map<UUID, Boolean> entityProneStates = Maps.newConcurrentMap();
 
   public static void setProne(UUID playerID, boolean prone) {
     entityProneStates.put(playerID, prone);
@@ -47,7 +47,7 @@ public class GoProne {
   public void onPlayerTick(TickEvent.PlayerTickEvent event) {
     if (event.phase == TickEvent.Phase.END) {
       if (event.player.world.isRemote) {
-        DistExecutor.runWhenOn(Dist.CLIENT, () -> () -> ClientProxy.updateProneState(event.player));
+        DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> ClientProxy.updateProneState(event.player));
       }//*/
       if (entityProneStates.getOrDefault(event.player.getUniqueID(), false) && ConfigOptions.test(event.player)) {
         event.player.setPose(Pose.SWIMMING);

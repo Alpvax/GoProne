@@ -55,7 +55,7 @@ public class ClientProxy {
       if (shouldBeProne != GoProne.entityProneStates.getOrDefault(uuid, false)) {
         PacketHandler.sendToServer(new SetPronePacket(shouldBeProne));
       }
-      GoProne.entityProneStates.put(uuid, shouldBeProne);
+      GoProne.setProne(uuid, shouldBeProne);
     }
   }
 }

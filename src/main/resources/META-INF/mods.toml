@@ -27,7 +27,10 @@ displayURL="https://www.curseforge.com/minecraft/mc-mods/goprone" #optional
 # A file name (in the root of the mod JAR) containing a logo for display
 logoFile="GPLogo.png" #optional
 # A text field displayed in the mod UI
-credits="Thanks to the Forge team for making this so easy" #optional
+credits='''
+Thanks to the Forge team for making this so easy.
+Thanks for curseforge user "aikinitt" for the Chinese translations.
+'''#optional
 # A text field displayed in the mod UI
 authors="Alpvax" #optional
 # The description text for the mod (multi line!) (#mandatory)
@@ -41,28 +44,17 @@ When you are allowed to go prone is configurable server side (i.e. in the save f
     # the modid of the dependency
     modId="forge" #mandatory
     # Does this dependency have to exist - if not, ordering below must be specified
-    mandatory=false #mandatory
-    # The version range of the dependency
-    versionRange="[33]" #mandatory
-    # An ordering relationship for the dependency - BEFORE or AFTER required if the relationship is not mandatory
-    ordering="AFTER"
-    # Side this dependency is applied on - BOTH, CLIENT or SERVER
-    side="CLIENT"
-[[dependencies.goprone]] #optional
-    # the modid of the dependency
-    modId="forge" #mandatory
-    # Does this dependency have to exist - if not, ordering below must be specified
     mandatory=true #mandatory
     # The version range of the dependency
-    versionRange="[33]" #mandatory
+    versionRange="[33,34)" #mandatory
     # An ordering relationship for the dependency - BEFORE or AFTER required if the relationship is not mandatory
     ordering="AFTER"
     # Side this dependency is applied on - BOTH, CLIENT or SERVER
-    side="SERVER"
+    side="BOTH"
 # Here's another dependency
 [[dependencies.goprone]]
     modId="minecraft"
     mandatory=true
-    versionRange="[1.16.2,)"
+    versionRange="[1.16.2,1.17)"
     ordering="NONE"
     side="BOTH"

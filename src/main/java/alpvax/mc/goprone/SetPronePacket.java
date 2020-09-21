@@ -7,10 +7,10 @@ import net.minecraftforge.fml.network.NetworkEvent;
 import java.util.function.Supplier;
 
 public class SetPronePacket {
-  private final boolean pressed;
+  private final boolean prone;
 
   SetPronePacket(boolean isPressed) {
-    this.pressed = isPressed;
+    this.prone = isPressed;
   }
 
   public static SetPronePacket decode(PacketBuffer buffer) {
@@ -18,14 +18,15 @@ public class SetPronePacket {
   }
 
   public static void encode(SetPronePacket msg, PacketBuffer buffer) {
-    buffer.writeBoolean(msg.pressed);
+    buffer.writeBoolean(msg.prone);
   }
 
   public static void handle(SetPronePacket msg, Supplier<NetworkEvent.Context> contextSupplier) {
     contextSupplier.get().enqueueWork(() -> {
       ServerPlayerEntity player = contextSupplier.get().getSender();
       if (player != null) {
-        GoProne.setProne(player.getUniqueID(), msg.pressed);
+        //player.setForcedPose(msg.prone ? Pose.SWIMMING : null);
+        GoProne.setProne(player.getUniqueID(), msg.prone);
       }
     });
   }

@@ -13,7 +13,7 @@ public class ConfigOptions {
     public static final ForgeConfigSpec SPEC;
     private static final ConfigOptions INSTANCE;
     private static final ConfigSetting[] ALLOW_SETTINGS = new ConfigSetting[]{
-            new ConfigSetting("flying", true, p -> !p.func_233570_aj_(), "Allow while flying"),
+            new ConfigSetting("flying", true, p -> !p.isOnGround(), "Allow while flying"),
             new ConfigSetting("riding", false, Entity::isPassenger, "Allow while riding another entity")
                     .withException(
                     new ConfigExceptionList.Builder<EntityType<?>>(

@@ -59,7 +59,7 @@ public class GoProne {
   public void onPlayerJump(LivingEvent.LivingJumpEvent event) {
     if (event.getEntity() instanceof PlayerEntity) {
       PlayerEntity player = (PlayerEntity) event.getEntityLiving();
-      if (player.func_233570_aj_() && player.getPose() == Pose.SWIMMING && !ConfigOptions.isJumpingAllowed()) {
+      if (player.isOnGround() && player.getPose() == Pose.SWIMMING && !ConfigOptions.isJumpingAllowed()) {
         Vector3d motion = player.getMotion();
         player.setMotion(motion.add(0, -motion.y, 0)); //set y motion to 0
       }

@@ -1,8 +1,8 @@
 package alpvax.mc.goprone;
 
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.network.PacketBuffer;
-import net.minecraftforge.fml.network.NetworkEvent;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraftforge.fmllegacy.network.NetworkEvent;
 
 import java.util.function.Supplier;
 
@@ -13,19 +13,19 @@ public class SetPronePacket {
     this.pressed = isPressed;
   }
 
-  public static SetPronePacket decode(PacketBuffer buffer) {
+  public static SetPronePacket decode(FriendlyByteBuf buffer) {
     return new SetPronePacket(buffer.readBoolean());
   }
 
-  public static void encode(SetPronePacket msg, PacketBuffer buffer) {
+  public static void encode(SetPronePacket msg, FriendlyByteBuf buffer) {
     buffer.writeBoolean(msg.pressed);
   }
 
   public static void handle(SetPronePacket msg, Supplier<NetworkEvent.Context> contextSupplier) {
     contextSupplier.get().enqueueWork(() -> {
-      ServerPlayerEntity player = contextSupplier.get().getSender();
+      ServerPlayer player = contextSupplier.get().getSender();
       if (player != null) {
-        GoProne.setProne(player.getUniqueID(), msg.pressed);
+        GoProne.setProne(player.getUUID(), msg.pressed);
       }
     });
   }

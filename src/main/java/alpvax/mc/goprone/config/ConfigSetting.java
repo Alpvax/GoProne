@@ -1,6 +1,6 @@
 package alpvax.mc.goprone.config;
 
-import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.world.entity.player.Player;
 import net.minecraftforge.common.ForgeConfigSpec;
 
 import java.util.HashSet;
@@ -11,13 +11,13 @@ public class ConfigSetting {
     private final String key;
     private final boolean defaultValue;
     private final String[] configComment;
-    private final Predicate<PlayerEntity> predicate;
+    private final Predicate<Player> predicate;
     private final Set<ConfigException<?, ?>> exceptions = new HashSet<>();
     private ForgeConfigSpec.ConfigValue<Boolean> configValue;
 
     private boolean value;
 
-    public ConfigSetting(String key, boolean defaultVal, Predicate<PlayerEntity> predicate, String... comment) {
+    public ConfigSetting(String key, boolean defaultVal, Predicate<Player> predicate, String... comment) {
         this.key = key;
         defaultValue = defaultVal;
         value = defaultVal;
@@ -58,7 +58,7 @@ public class ConfigSetting {
         exceptions.forEach(ConfigException::bakeValue);
     }
 
-    public ConfigResult test(PlayerEntity player) {
+    public ConfigResult test(Player player) {
         return predicate.test(player)
                 ? value != exceptions.stream().anyMatch(e -> e.test(player)) ? ConfigResult.ALLOW : ConfigResult.DENY
                 : ConfigResult.PASS;

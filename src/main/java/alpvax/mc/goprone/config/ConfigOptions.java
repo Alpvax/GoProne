@@ -1,17 +1,18 @@
 package alpvax.mc.goprone.config;
 
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.player.Player;
 import net.minecraftforge.common.ForgeConfigSpec;
-import net.minecraftforge.fml.config.ModConfig;
+import net.minecraftforge.fml.event.config.ModConfigEvent;
 import net.minecraftforge.registries.ForgeRegistries;
 import org.apache.commons.lang3.tuple.Pair;
 
 public class ConfigOptions {
     public static final ForgeConfigSpec SPEC;
     private static final ConfigOptions INSTANCE;
+    @SuppressWarnings("ConstantConditions")
     private static final ConfigSetting[] ALLOW_SETTINGS = new ConfigSetting[]{
             new ConfigSetting("flying", true, p -> !p.isOnGround(), "Allow while flying"),
             new ConfigSetting("riding", false, Entity::isPassenger, "Allow while riding another entity")
@@ -22,7 +23,7 @@ public class ConfigOptions {
                     ).setComment("A list of exceptions to the rule.",
                             "If allowed is true, this works as a blacklist",
                             "If allowed is false, this works as a whitelist"
-                    ).build((value, player) -> player.isPassenger() && player.getRidingEntity().getType() == value)
+                    ).build((value, player) -> player.isPassenger() && player.getVehicle().getType() == value)
             )
     };
     private final ForgeConfigSpec.BooleanValue isJumpingAllowedCV;
@@ -54,12 +55,12 @@ public class ConfigOptions {
         SPEC = pair.getRight();
         INSTANCE = pair.getLeft();
     }
-    public static void onModConfigEvent(final ModConfig.ModConfigEvent configEvent) {
+    public static void onModConfigEvent(final ModConfigEvent configEvent) {
         if (configEvent.getConfig().getSpec() == SPEC) {
             INSTANCE.bakeConfig();
         }
     }
-    public static boolean test(PlayerEntity player) {
+    public static boolean test(Player player) {
         for (ConfigSetting s : ALLOW_SETTINGS) {
             if (s.test(player) == ConfigResult.DENY) {
                 return false;

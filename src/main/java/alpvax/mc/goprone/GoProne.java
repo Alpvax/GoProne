@@ -2,9 +2,9 @@ package alpvax.mc.goprone;
 
 import alpvax.mc.goprone.config.ConfigOptions;
 import com.google.common.collect.Maps;
-import net.minecraft.entity.Pose;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.util.math.vector.Vector3d;
+import net.minecraft.world.entity.Pose;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.TickEvent;
@@ -46,10 +46,10 @@ public class GoProne {
   @SubscribeEvent
   public void onPlayerTick(TickEvent.PlayerTickEvent event) {
     if (event.phase == TickEvent.Phase.END) {
-      if (event.player.world.isRemote) {
+      if (event.player.level.isClientSide) {
         DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> ClientProxy.updateProneState(event.player));
       }//*/
-      if (entityProneStates.getOrDefault(event.player.getUniqueID(), false) && ConfigOptions.test(event.player)) {
+      if (entityProneStates.getOrDefault(event.player.getUUID(), false) && ConfigOptions.test(event.player)) {
         event.player.setPose(Pose.SWIMMING);
       }
     }
@@ -57,11 +57,11 @@ public class GoProne {
 
   @SubscribeEvent(priority = EventPriority.LOWEST)
   public void onPlayerJump(LivingEvent.LivingJumpEvent event) {
-    if (event.getEntity() instanceof PlayerEntity) {
-      PlayerEntity player = (PlayerEntity) event.getEntityLiving();
+    if (event.getEntity() instanceof Player) {
+      Player player = (Player) event.getEntityLiving();
       if (player.isOnGround() && player.getPose() == Pose.SWIMMING && !ConfigOptions.isJumpingAllowed()) {
-        Vector3d motion = player.getMotion();
-        player.setMotion(motion.add(0, -motion.y, 0)); //set y motion to 0
+        Vec3 motion = player.getDeltaMovement();
+        player.setDeltaMovement(motion.x, 0, motion.z); //set y motion to 0
       }
     }
   }

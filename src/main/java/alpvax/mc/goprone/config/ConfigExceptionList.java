@@ -1,6 +1,6 @@
 package alpvax.mc.goprone.config;
 
-import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.world.entity.player.Player;
 import net.minecraftforge.common.ForgeConfigSpec;
 
 import java.util.ArrayList;
@@ -44,7 +44,7 @@ public class ConfigExceptionList<T> extends ConfigException<List<T>, List<? exte
     }
 
     @Override
-    protected boolean test(List<T> value, PlayerEntity player) {
+    protected boolean test(List<T> value, Player player) {
         return value.stream().anyMatch(v -> predicate.test(v, player));
     }
 

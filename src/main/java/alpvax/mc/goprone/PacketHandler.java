@@ -13,7 +13,7 @@ public final class PacketHandler
   private static final SimpleChannel HANDLER = NetworkRegistry.ChannelBuilder
       .named(new ResourceLocation(GoProne.MODID, "main_channel"))
       .clientAcceptedVersions(PROTOCOL_VERSION::equals)
-      .serverAcceptedVersions((ver) -> true)
+      .serverAcceptedVersions(NetworkRegistry.acceptMissingOr(PROTOCOL_VERSION))
       .networkProtocolVersion(() -> PROTOCOL_VERSION)
       .simpleChannel();
 

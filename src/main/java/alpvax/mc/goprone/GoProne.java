@@ -53,7 +53,7 @@ public class GoProne {
     if (event.phase == TickEvent.Phase.END) {
       if (event.player.level.isClientSide) {
         DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> ClientProxy.updateProneState(event.player));
-      }//*/
+      }
       if (entityProneStates.getOrDefault(event.player.getUUID(), false) && ConfigOptions.test(event.player)) {
         event.player.setPose(Pose.SWIMMING);
       }
@@ -62,6 +62,12 @@ public class GoProne {
 
   @SubscribeEvent(priority = EventPriority.LOWEST)
   public void onPlayerJump(LivingEvent.LivingJumpEvent event) {
+    if (event.getEntity().level.isClientSide) {
+      Boolean disabled = DistExecutor.unsafeCallWhenOn(Dist.CLIENT, () -> ClientProxy::isDisabled);
+      if (disabled != null && disabled) {
+        return;
+      }
+    }
     if (event.getEntity() instanceof Player) {
       Player player = (Player) event.getEntityLiving();
       if (player.isOnGround() && player.getPose() == Pose.SWIMMING && !ConfigOptions.isJumpingAllowed()) {

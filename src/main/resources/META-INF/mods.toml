@@ -38,6 +38,8 @@ description='''
 Just adds a keybind (default "C") which sets the player to the crawling pose, allowing them to sneak through 1-block high gaps, without needing to squash something on top of them.
 Keybind is listed under the vanilla "movement" category in the controls settings.
 
+REQUIRED ON THE SERVER!
+
 When you are allowed to go prone is configurable server side (i.e. in the save folder/serverconfig).
 '''
 # A dependency - use the . to indicate dependency for a specific modid. Dependencies are optional.

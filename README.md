@@ -16,4 +16,4 @@ Server config can be found in `config/goprone.json` and uses JSON instead of TOM
 
 This version in not compatible with Forge (i.e. you can't play on Forge servers with GoProne Forge from Fabric client with GoProne Fabric)
 # Download
-*CurseForge page has not been approved yet.*
+[Curse](https://www.curseforge.com/minecraft/mc-mods/goprone-fabric)

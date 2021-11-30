@@ -68,12 +68,9 @@ public class GoProne {
         return;
       }
     }
-    if (event.getEntity() instanceof Player) {
-      Player player = (Player) event.getEntityLiving();
-      if (player.isOnGround() && player.getPose() == Pose.SWIMMING && !ConfigOptions.isJumpingAllowed()) {
-        Vec3 motion = player.getDeltaMovement();
-        player.setDeltaMovement(motion.x, 0, motion.z); //set y motion to 0
-      }
+    if (event.getEntity() instanceof Player player && player.isOnGround() && player.getPose() == Pose.SWIMMING && !ConfigOptions.isJumpingAllowed()) {
+      Vec3 motion = player.getDeltaMovement();
+      player.setDeltaMovement(motion.x, 0, motion.z); //set y motion to 0
     }
   }
 }

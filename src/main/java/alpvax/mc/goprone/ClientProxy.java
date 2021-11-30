@@ -7,15 +7,15 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.world.entity.player.Player;
 import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.client.ClientRegistry;
 import net.minecraftforge.client.event.ClientPlayerNetworkEvent;
 import net.minecraftforge.client.settings.KeyConflictContext;
 import net.minecraftforge.event.TickEvent.ClientTickEvent;
 import net.minecraftforge.event.TickEvent.Phase;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber;
-import net.minecraftforge.fmlclient.registry.ClientRegistry;
-import net.minecraftforge.fmllegacy.network.FMLConnectionData;
-import net.minecraftforge.fmllegacy.network.NetworkHooks;
+import net.minecraftforge.network.ConnectionData;
+import net.minecraftforge.network.NetworkHooks;
 import org.lwjgl.glfw.GLFW;
 
 import java.util.UUID;
@@ -51,7 +51,7 @@ public class ClientProxy {
   @SuppressWarnings("ConstantConditions")
   @SubscribeEvent
   public static void onServerConnect(ClientPlayerNetworkEvent.LoggedInEvent event) {
-    FMLConnectionData connection = NetworkHooks.getConnectionData(event.getNetworkManager());
+    ConnectionData connection = NetworkHooks.getConnectionData(event.getConnection());
     serverSideExists = connection != null && connection.getModList().contains(GoProne.MODID);
     if (!serverSideExists) {
       event.getPlayer().displayClientMessage(new TranslatableComponent(GoProne.MODID + ".notinstalled").withStyle(ChatFormatting.BOLD, ChatFormatting.RED), false);

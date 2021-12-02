@@ -2,7 +2,9 @@ package alpvax.mc.goprone;
 
 import io.netty.buffer.Unpooled;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
+import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
+import net.minecraft.client.network.ClientPlayNetworkHandler;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.Identifier;
@@ -17,12 +19,15 @@ public final class PacketHandler {
 	/**ID of packet. Current value: <code>goprone:main_channel</code>*/
 	public static final Identifier ID = new Identifier(GoProne.MODID, "main_channel");
 
+	public static final Identifier ID_ISINSTALLED = new Identifier(GoProne.MODID, "is_installed");
+
 	/**
 	 * Register handlers for packet.
 	 * @see {@link SetPronePacket#decode(PacketByteBuf)}
 	 */
 	public static void register() {
 		ServerPlayNetworking.registerGlobalReceiver(ID, (srv, ep, handle, buf, sender) -> SetPronePacket.handle(SetPronePacket.decode(buf), ep));
+		ServerPlayConnectionEvents.JOIN.register((h, sender, srv) -> sender.sendPacket(ID_ISINSTALLED, new PacketByteBuf(Unpooled.buffer())));
 		//SetPronePacket.handle only accepts serverplayer as arg. So no client impl.
 	}
 

@@ -1,16 +1,15 @@
 package alpvax.mc.goprone;
 
-import java.util.Map;
-import java.util.UUID;
-
 import com.google.common.collect.Maps;
-
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.minecraft.entity.EntityPose;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.util.math.Vec3d;
 import ru.vidtu.goprone.Config;
+
+import java.util.Map;
+import java.util.UUID;
 
 /**
  * Main mod initializer.

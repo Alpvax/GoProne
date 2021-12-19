@@ -49,7 +49,7 @@ When you are allowed to go prone is configurable server side (i.e. in the save f
     # Does this dependency have to exist - if not, ordering below must be specified
     mandatory=true #mandatory
     # The version range of the dependency
-    versionRange="[38,39)" #mandatory
+    versionRange="[38,40)" #mandatory
     # An ordering relationship for the dependency - BEFORE or AFTER required if the relationship is not mandatory
     ordering="AFTER"
     # Side this dependency is applied on - BOTH, CLIENT or SERVER

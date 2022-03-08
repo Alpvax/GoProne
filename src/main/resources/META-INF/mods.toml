@@ -6,7 +6,7 @@
 # The name of the mod loader type to load - for regular FML @Mod mods it should be javafml
 modLoader="javafml" #mandatory
 # A version range to match for said mod loader - for regular FML @Mod it will be the forge version
-loaderVersion="[38,)" #mandatory This is typically bumped every Minecraft version by Forge. See our download page for lists of versions.
+loaderVersion="[38,41)" #mandatory This is typically bumped every Minecraft version by Forge. See our download page for lists of versions.
 # The license for you mod. This is mandatory metadata and allows for easier comprehension of your redistributive properties.
 # Review your options at https://choosealicense.com/. All rights reserved is the default copyright stance, and is thus the default here.
 license="All rights reserved"
@@ -30,6 +30,7 @@ logoFile="GPLogo.png" #optional
 credits='''
 Thanks to the Forge team for making this so easy.
 Thanks for curseforge user "aikinitt" for the Chinese translations.
+Thanks to curseforge user "hairyballbastic" for the new logo.
 '''#optional
 # A text field displayed in the mod UI
 authors="Alpvax" #optional
@@ -49,7 +50,7 @@ When you are allowed to go prone is configurable server side (i.e. in the save f
     # Does this dependency have to exist - if not, ordering below must be specified
     mandatory=true #mandatory
     # The version range of the dependency
-    versionRange="[38,40)" #mandatory
+    versionRange="[38,41)" #mandatory
     # An ordering relationship for the dependency - BEFORE or AFTER required if the relationship is not mandatory
     ordering="AFTER"
     # Side this dependency is applied on - BOTH, CLIENT or SERVER

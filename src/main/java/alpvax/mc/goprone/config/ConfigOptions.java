@@ -1,53 +1,56 @@
 package alpvax.mc.goprone.config;
 
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.player.Player;
+import alpvax.mc.goprone.GoProne;
 import net.minecraftforge.common.ForgeConfigSpec;
+import net.minecraftforge.fml.ModLoadingContext;
+import net.minecraftforge.fml.config.ModConfig;
 import net.minecraftforge.fml.event.config.ModConfigEvent;
-import net.minecraftforge.registries.ForgeRegistries;
 import org.apache.commons.lang3.tuple.Pair;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class ConfigOptions {
-    public static final ForgeConfigSpec SPEC;
+    private static final ForgeConfigSpec SPEC;
     private static final ConfigOptions INSTANCE;
-    @SuppressWarnings("ConstantConditions")
-    private static final ConfigSetting[] ALLOW_SETTINGS = new ConfigSetting[]{
-            new ConfigSetting("flying", true, p -> !p.isOnGround(), "Allow while flying"),
-            new ConfigSetting("riding", false, Entity::isPassenger, "Allow while riding another entity")
-                    .withException(
-                    new ConfigExceptionList.Builder<EntityType<?>>(
-                            e -> e.getRegistryName().toString(),
-                            s -> ForgeRegistries.ENTITIES.getValue(new ResourceLocation(s))
-                    ).setComment("A list of exceptions to the rule.",
-                            "If allowed is true, this works as a blacklist",
-                            "If allowed is false, this works as a whitelist"
-                    ).build((value, player) -> player.isPassenger() && player.getVehicle().getType() == value)
-            )
-    };
-    private final ForgeConfigSpec.BooleanValue isJumpingAllowedCV;
-    private boolean jumpingAllowed = true;
+
+    static final List<BooleanConfigSetting> ALL_SETTINGS = new ArrayList<>();
+
+    public final BooleanConfigSetting jumpingAllowed = new BooleanConfigSetting(
+        "isJumpingAllowed", true, "Can players jump while prone");
+    public final BooleanConfigSetting allowedWhileFlying = new BooleanConfigSetting(
+        "flying", true, "Allow while flying (applies any time the player is off the ground)");
+    public final BooleanConfigSetting allowedWhileRiding = new BooleanConfigSetting("riding", false,
+                                                                                    "Allow while riding another entity",
+                                                                                    "If this is true, then you cannot go prone while riding any entities in the tag \"" +
+                                                                                    GoProne.MODID +
+                                                                                    ":blacklisted_entities\" but you can when riding any others",
+                                                                                    "If this is false, then you can go prone while riding any entities in the tag \"" +
+                                                                                    GoProne.MODID +
+                                                                                    ":whitelisted_entities\" but you cannot when riding any others"
+    );
+    public BooleanConfigSetting allowedWhileClimbing = new BooleanConfigSetting(
+        "climbing", false, "Allow while climbing (applies any time the player is on a climbable block)");
+
     private ConfigOptions(ForgeConfigSpec.Builder builder) {
         builder.comment("Toggles to allow/disable going prone in various circumstances").push("allowProne");
-        for (ConfigSetting s : ALLOW_SETTINGS) {
-            s.createConfigValue(builder);
-        }
+        ALL_SETTINGS.stream()
+            .filter(setting -> setting != jumpingAllowed)
+            .forEach(setting -> setting.createConfigValue(builder));
         builder.pop();
         builder.comment("Other options not related to when you can go prone").push("other");
-        isJumpingAllowedCV = builder.comment("Can players jump while prone").define("isJumpingAllowed", jumpingAllowed);
+        jumpingAllowed.createConfigValue(builder);
         builder.pop();
+    }
+
+    public static ConfigOptions instance() {
+        return INSTANCE;
     }
 
     private void bakeConfig() {
-        for (ConfigSetting s: ALLOW_SETTINGS) {
+        for (BooleanConfigSetting s : ALL_SETTINGS) {
             s.bakeConfigValue();
         }
-        jumpingAllowed = isJumpingAllowedCV.get();
-    }
-
-    public static boolean isJumpingAllowed() {
-        return INSTANCE.jumpingAllowed;
     }
 
     static {
@@ -55,17 +58,15 @@ public class ConfigOptions {
         SPEC = pair.getRight();
         INSTANCE = pair.getLeft();
     }
+    public static void registerConfig(ModLoadingContext context) {
+        context.registerConfig(ModConfig.Type.SERVER, SPEC);
+    }
     public static void onModConfigEvent(final ModConfigEvent configEvent) {
         if (configEvent.getConfig().getSpec() == SPEC) {
             INSTANCE.bakeConfig();
-        }
-    }
-    public static boolean test(Player player) {
-        for (ConfigSetting s : ALLOW_SETTINGS) {
-            if (s.test(player) == ConfigResult.DENY) {
-                return false;
+            if (configEvent instanceof ModConfigEvent.Reloading) {
+                GoProne.onConfigChange();
             }
         }
-        return true;
     }
 }

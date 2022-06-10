@@ -1,86 +1,80 @@
 package alpvax.mc.goprone;
 
+import alpvax.mc.goprone.network.PacketHandler;
+import alpvax.mc.goprone.network.SetPronePacket;
 import com.mojang.blaze3d.platform.InputConstants;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
-import net.minecraft.network.chat.TranslatableComponent;
-import net.minecraft.world.entity.player.Player;
+import net.minecraft.network.chat.Component;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.ClientRegistry;
 import net.minecraftforge.client.event.ClientPlayerNetworkEvent;
+import net.minecraftforge.client.event.InputEvent;
 import net.minecraftforge.client.settings.KeyConflictContext;
-import net.minecraftforge.event.TickEvent.ClientTickEvent;
-import net.minecraftforge.event.TickEvent.Phase;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber;
-import net.minecraftforge.network.ConnectionData;
 import net.minecraftforge.network.NetworkHooks;
-import org.lwjgl.glfw.GLFW;
-
-import java.util.UUID;
 
 @EventBusSubscriber(value = Dist.CLIENT, modid = GoProne.MODID)
 public class ClientProxy {
-  public static final KeyMapping prone = new KeyMapping("key.prone", KeyConflictContext.IN_GAME, InputConstants.Type.KEYSYM, GLFW.GLFW_KEY_C, "key.categories.movement");
-  public static final KeyMapping toggleProne = new KeyMapping("key.prone.toggle", KeyConflictContext.IN_GAME, InputConstants.UNKNOWN, "key.categories.movement");
+    public static final KeyMapping prone = new KeyMapping(
+        "key.prone", KeyConflictContext.IN_GAME, InputConstants.Type.KEYSYM, InputConstants.KEY_C,
+        "key.categories.movement"
+    );
+    public static final KeyMapping toggleProne = new KeyMapping(
+        "key.prone.toggle", KeyConflictContext.IN_GAME, InputConstants.UNKNOWN, "key.categories.movement");
 
-  private static boolean toggleWasPressed = false;
-  private static boolean proneToggle = false;
+    private static boolean proneToggle = false;
 
-  private static boolean serverSideExists = false;
+    private static boolean serverSideExists = false;
 
-  public static void init() {
-    ClientRegistry.registerKeyBinding(prone);
-    ClientRegistry.registerKeyBinding(toggleProne);
-  }
-
-  @SubscribeEvent
-  public static void updateKeys(ClientTickEvent event) {
-    if (event.phase == Phase.END) {
-      boolean pressed = toggleProne.isDown();
-      if (pressed && !toggleWasPressed) {
-        proneToggle = !proneToggle;
-      }
-      toggleWasPressed = pressed;
-      updateClientProneState();
+    public static void init() {
+        ClientRegistry.registerKeyBinding(prone);
+        ClientRegistry.registerKeyBinding(toggleProne);
     }
-  }
 
-  // All properties known to be nonnull at this time
-  @SuppressWarnings("ConstantConditions")
-  @SubscribeEvent
-  public static void onServerConnect(ClientPlayerNetworkEvent.LoggedInEvent event) {
-    ConnectionData connection = NetworkHooks.getConnectionData(event.getConnection());
-    serverSideExists = connection != null && connection.getModList().contains(GoProne.MODID);
-    if (!serverSideExists) {
-      event.getPlayer().displayClientMessage(new TranslatableComponent(GoProne.MODID + ".notinstalled").withStyle(ChatFormatting.BOLD, ChatFormatting.RED), false);
+    public static void setToggleState(boolean toggleState) {
+        proneToggle = toggleState;
     }
-  }
+    @SubscribeEvent
+    public static void updateKeys(InputEvent.KeyInputEvent event) {
+        if (isDisabled()) {
+            return;
+        }
+        var flag = event.getKey() == prone.getKey().getValue();
+        if (toggleProne.consumeClick()) {
+            proneToggle = !proneToggle;
+            flag = true;
+        }
+        if (flag) {
+            var player = Minecraft.getInstance().player;
+            if (player != null) {
+                PacketHandler.sendToServer(new SetPronePacket(prone.isDown() != proneToggle));
+                player.getCapability(PlayerProneData.CAPABILITY)
+                    .ifPresent(data -> data.setProne(prone.isDown() != proneToggle));
+            }
+        }
+    }
 
-  public static boolean isDisabled() {
-    return !serverSideExists;
-  }
+    @SubscribeEvent
+    public static void onServerConnect(ClientPlayerNetworkEvent.LoggedInEvent event) {
+        var connection = NetworkHooks.getConnectionData(event.getConnection());
+        serverSideExists = connection != null && connection.getModList().contains(GoProne.MODID);
+        if (!serverSideExists) {
+            event.getPlayer()
+                .displayClientMessage(Component.translatable(GoProne.MODID + ".notinstalled")
+                                          .withStyle(ChatFormatting.BOLD, ChatFormatting.RED), false);
+        }
+    }
 
-  public static void updateProneState(Player player) {
-    // Poses are automatically synced from server->client, so we don't have to worry about other players on the client
-    if (player == Minecraft.getInstance().player) {
-      updateClientProneState();
+    public static boolean isDisabled() {
+        return !serverSideExists;
     }
-  }
-
-  private static void updateClientProneState() {
-    if (!serverSideExists) {
-      return;
+    public static void onConfigChange() {
+        var player = Minecraft.getInstance().player;
+        if (player != null) {
+            player.getCapability(PlayerProneData.CAPABILITY).ifPresent(PlayerProneData::markDirty);
+        }
     }
-    Player player = Minecraft.getInstance().player;
-    if (player != null) {
-      UUID uuid = player.getUUID();
-      boolean shouldBeProne = prone.isDown() != proneToggle;
-      if (shouldBeProne != GoProne.entityProneStates.getOrDefault(uuid, false)) {
-        PacketHandler.sendToServer(new SetPronePacket(shouldBeProne));
-      }
-      GoProne.setProne(uuid, shouldBeProne);
-    }
-  }
 }

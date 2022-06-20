@@ -75,8 +75,6 @@ public class GoProne {
     public void attachPlayerCapability(AttachCapabilitiesEvent<Entity> event) {
         if (event.getObject() instanceof ServerPlayer player) { // Only attach capability on server side
             event.addCapability(new ResourceLocation(MODID, "player_cap"), new PlayerProneData.Provider(player));
-        } else if (event.getObject() instanceof LocalPlayer player) {
-            event.addCapability(new ResourceLocation(MODID, "player_cap"), new PlayerProneData.Provider(player));
         }
     }
 

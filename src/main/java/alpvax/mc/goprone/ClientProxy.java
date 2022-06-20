@@ -6,12 +6,16 @@ import com.mojang.blaze3d.platform.InputConstants;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.Entity;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.ClientRegistry;
 import net.minecraftforge.client.event.ClientPlayerNetworkEvent;
 import net.minecraftforge.client.event.InputEvent;
 import net.minecraftforge.client.settings.KeyConflictContext;
+import net.minecraftforge.event.AttachCapabilitiesEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber;
 import net.minecraftforge.network.NetworkHooks;
@@ -65,6 +69,13 @@ public class ClientProxy {
             event.getPlayer()
                 .displayClientMessage(Component.translatable(GoProne.MODID + ".notinstalled")
                                           .withStyle(ChatFormatting.BOLD, ChatFormatting.RED), false);
+        }
+    }
+
+    @SubscribeEvent
+    public static void attachCapabilityClient(AttachCapabilitiesEvent<Entity> event) {
+        if (event.getObject() instanceof LocalPlayer player) {
+            event.addCapability(new ResourceLocation(GoProne.MODID, "player_cap"), new PlayerProneData.Provider(player));
         }
     }
 

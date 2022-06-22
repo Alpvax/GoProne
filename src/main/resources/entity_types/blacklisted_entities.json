@@ -1,0 +1,9 @@
+{
+  "values": [
+    "minecraft:minecart",
+    {
+      "id": "sit:entity_sit",
+      "required": false
+    }
+  ]
+}

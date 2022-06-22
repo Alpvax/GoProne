@@ -1,68 +1,59 @@
 package alpvax.mc.goprone;
 
+import alpvax.mc.goprone.network.fabric.FabricPacketHandler;
+import alpvax.mc.goprone.network.packets.ServerBoundPackets;
+import com.mojang.blaze3d.platform.InputConstants;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.option.KeyBinding;
-import net.minecraft.client.util.InputUtil;
-import net.minecraft.client.util.InputUtil.Type;
-import net.minecraft.entity.player.PlayerEntity;
-import org.lwjgl.glfw.GLFW;
-
-import java.util.UUID;
+import net.minecraft.client.KeyMapping;
+import net.minecraft.client.Minecraft;
 
 /**
  * Client mod initializer.
+ *
  * @author Alpvax
  * @author VidTu
  */
 public class ClientProxy implements ClientModInitializer {
-	public static final KeyBinding prone = new KeyBinding("key.prone", Type.KEYSYM, GLFW.GLFW_KEY_C, "key.categories.movement");
-	public static final KeyBinding toggleProne = new KeyBinding("key.prone.toggle", InputUtil.UNKNOWN_KEY.getCode(), "key.categories.movement");
+    public static final KeyMapping prone = new KeyMapping(
+        "key.prone", InputConstants.Type.KEYSYM, InputConstants.KEY_C, "key.categories.movement");
+    public static final KeyMapping toggleProne = new KeyMapping("key.prone.toggle", -1, "key.categories.movement");
 
-	private static boolean previousPressed = false;
-	private static boolean proneToggle = false;
-	private static boolean working = false;
-	
-	@Override
-	public void onInitializeClient() {
-		KeyBindingHelper.registerKeyBinding(prone);
-		KeyBindingHelper.registerKeyBinding(toggleProne);
-		ClientTickEvents.END_CLIENT_TICK.register(ClientProxy::updateKeys);
-		ClientPlayConnectionEvents.DISCONNECT.register((h, mc) -> working = false);
-		ClientPlayNetworking.registerGlobalReceiver(PacketHandler.ID_ISINSTALLED, (mc, h, buf, sender) -> working = true);
-	}
+    private static boolean previousPressed = false;
+    private static boolean proneToggle = false;
+    private static boolean working = false;
 
-	public static void updateKeys(MinecraftClient mc) {
-		boolean pressed = toggleProne.wasPressed();
-		if (pressed && !previousPressed) {
-			proneToggle = !proneToggle;
-		}
-		previousPressed = pressed;
-		updateClientProneState(mc);
-	}
+    @Override
+    public void onInitializeClient() {
+        KeyBindingHelper.registerKeyBinding(prone);
+        KeyBindingHelper.registerKeyBinding(toggleProne);
+        ClientTickEvents.END_CLIENT_TICK.register(this::onTick);
+        ClientPlayConnectionEvents.DISCONNECT.register((h, mc) -> working = false);
+        ClientPlayNetworking.registerGlobalReceiver(
+            FabricPacketHandler.ID_ISINSTALLED, (mc, h, buf, sender) -> working = true);
+    }
 
-	@SuppressWarnings("resource")
-	public static void updateProneState(PlayerEntity player) {
-		// Poses are automatically synced from server->client, so we don't have to worry
-		// about other players on the client
-		if (player == MinecraftClient.getInstance().player) {
-			updateClientProneState(MinecraftClient.getInstance());
-		}
-	}
+    public void onTick(Minecraft mc) {
+        boolean pressed = toggleProne.consumeClick();
+        if (pressed && !previousPressed) {
+            proneToggle = !proneToggle;
+        }
+        previousPressed = pressed;
+        updateClientProneState(mc);
+    }
 
-	private static void updateClientProneState(MinecraftClient mc) {
-		PlayerEntity player = mc.player;
-		if (player != null && working) {
-			UUID uuid = player.getUuid();
-			boolean shouldBeProne = prone.isPressed() != proneToggle;
-			if (shouldBeProne != GoProne.entityProneStates.getOrDefault(uuid, false)) {
-				PacketHandler.sendToServer(new SetPronePacket(shouldBeProne));
-			}
-			GoProne.entityProneStates.put(uuid, shouldBeProne);
-		}
-	}
+    private static void updateClientProneState(Minecraft mc) {
+        var player = mc.player;
+        if (player != null && working) {
+            boolean shouldBeProne = prone.isDown() != proneToggle;
+            IProneData data = (IProneData) player;
+            if (shouldBeProne != data.shouldBeProne()) {
+                new ServerBoundPackets.SetPronePacket(shouldBeProne).sendToServer();
+            }
+            data.setProne(shouldBeProne);
+        }
+    }
 }

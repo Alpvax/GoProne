@@ -1,23 +1,30 @@
 plugins {
-	id 'fabric-loom' version '0.10.+'
+	id 'fabric-loom' version '0.12.+'
+}
+
+repositories {
+	maven { url = 'https://maven.parchmentmc.org' }
 }
 
 sourceCompatibility = JavaVersion.VERSION_17
 targetCompatibility = JavaVersion.VERSION_17
 
-archivesBaseName = "GoProne-Fabric-1.18"
+archivesBaseName = "GoProne-Fabric-1.19"
 version = System.getProperty("goprone.version", "unknown")
 
 dependencies {
-	minecraft "com.mojang:minecraft:1.18"
-	mappings "net.fabricmc:yarn:1.18+build.1:v2"
-	modImplementation "net.fabricmc:fabric-loader:0.12.8"
-	modImplementation "net.fabricmc.fabric-api:fabric-api:0.43.1+1.18"
+	minecraft "com.mojang:minecraft:1.19"
+	mappings loom.layered() {
+		officialMojangMappings()
+		parchment("org.parchmentmc.data:parchment-1.18.2:2022.06.19@zip")
+	}
+	modImplementation "net.fabricmc:fabric-loader:0.14.8"
+	modImplementation "net.fabricmc.fabric-api:fabric-api:0.56.1+1.19"
 }
 
 tasks.withType(JavaCompile).configureEach {
 	it.options.encoding = "UTF-8"
-    it.options.release = 17
+	it.options.release = 17
 }
 
 processResources {

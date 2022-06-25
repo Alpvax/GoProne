@@ -10,7 +10,7 @@ sourceCompatibility = JavaVersion.VERSION_17
 targetCompatibility = JavaVersion.VERSION_17
 
 archivesBaseName = "GoProne-Fabric-1.19"
-version = System.getProperty("goprone.version", "unknown")
+version = project.version
 
 dependencies {
 	minecraft "com.mojang:minecraft:1.19"
@@ -28,7 +28,8 @@ tasks.withType(JavaCompile).configureEach {
 }
 
 processResources {
+	inputs.property "version", project.version
 	filesMatching("fabric.mod.json") {
-		expand "version": System.getProperty("goprone.version", "unknown")
+		expand "version": project.version
 	}
 }

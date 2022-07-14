@@ -9,7 +9,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.entity.EntityType;
 import net.minecraftforge.common.data.ExistingFileHelper;
-import org.jetbrains.annotations.Nullable;
+import org.jetbrains.annotations.NotNull;
 
 public class RidingCheck {
     public static final TagKey<EntityType<?>> ENTITY_BLACKLIST = TagKey.create(
@@ -17,7 +17,7 @@ public class RidingCheck {
     public static final TagKey<EntityType<?>> ENTITY_WHITELIST = TagKey.create(
         Registry.ENTITY_TYPE_REGISTRY, new ResourceLocation(GoProne.MODID, "whitelisted_entities"));
 
-    public static boolean checkEntityType(@Nullable EntityType<?> type) {
+    public static boolean checkEntityType(EntityType<?> type) {
         if (ConfigOptions.instance().allowedWhileRiding.get()) {
             return !type.is(ENTITY_BLACKLIST);
         }
@@ -36,7 +36,7 @@ public class RidingCheck {
         }
 
         @Override
-        public String getName() {
+        public @NotNull String getName() {
             return "GoProne Entity Tags";
         }
     }

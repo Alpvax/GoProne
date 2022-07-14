@@ -12,6 +12,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.capabilities.RegisterCapabilitiesEvent;
+import net.minecraftforge.data.event.GatherDataEvent;
 import net.minecraftforge.event.AttachCapabilitiesEvent;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.entity.living.LivingEvent;
@@ -22,9 +23,7 @@ import net.minecraftforge.fml.DistExecutor;
 import net.minecraftforge.fml.IExtensionPoint;
 import net.minecraftforge.fml.ModLoadingContext;
 import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
-import net.minecraftforge.forge.event.lifecycle.GatherDataEvent;
 import net.minecraftforge.server.ServerLifecycleHooks;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -42,7 +41,7 @@ public class GoProne {
         PacketHandler.register();
         ConfigOptions.registerConfig(ModLoadingContext.get());
         var modBus = FMLJavaModLoadingContext.get().getModEventBus();
-        modBus.addListener(this::setupClient);
+        modBus.addListener(ClientProxy::init);
         modBus.addListener(ConfigOptions::onModConfigEvent);
         modBus.addListener(this::registerCapability);
         modBus.addListener(this::gatherData);
@@ -53,9 +52,9 @@ public class GoProne {
             ));
     }
 
-    private void setupClient(FMLClientSetupEvent event) {
-        event.enqueueWork(ClientProxy::init);
-    }
+//    private void setupClient(FMLClientSetupEvent event) {
+//        event.enqueueWork(ClientProxy::init);
+//    }
 
     public static void onConfigChange() {
         DistExecutor.safeRunWhenOn(Dist.CLIENT, () -> ClientProxy::onConfigChange);

@@ -41,7 +41,7 @@ public class GoProne {
         PacketHandler.register();
         ConfigOptions.registerConfig(ModLoadingContext.get());
         var modBus = FMLJavaModLoadingContext.get().getModEventBus();
-        modBus.addListener(ClientProxy::init);
+        DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> modBus.addListener(ClientProxy::init));
         modBus.addListener(ConfigOptions::onModConfigEvent);
         modBus.addListener(this::registerCapability);
         modBus.addListener(this::gatherData);

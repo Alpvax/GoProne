@@ -3,12 +3,12 @@ package alpvax.mc.goprone;
 import alpvax.mc.goprone.config.ConfigOptions;
 import alpvax.mc.goprone.network.PacketHandler;
 import alpvax.mc.goprone.validation.RidingCheck;
-import net.minecraft.client.player.LocalPlayer;
+import net.minecraft.core.HolderLookup;
+import net.minecraft.data.PackOutput;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.Pose;
-import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.player.Player;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.common.MinecraftForge;
@@ -29,7 +29,7 @@ import net.minecraftforge.server.ServerLifecycleHooks;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 
 
 @Mod(GoProne.MODID)
@@ -54,10 +54,6 @@ public class GoProne {
                 (remote, isServer) -> true
             ));
     }
-
-//    private void setupClient(FMLClientSetupEvent event) {
-//        event.enqueueWork(ClientProxy::init);
-//    }
 
     public static void onConfigChange() {
         DistExecutor.safeRunWhenOn(Dist.CLIENT, () -> ClientProxy::onConfigChange);
@@ -89,17 +85,14 @@ public class GoProne {
     public void onPlayerTick(TickEvent.PlayerTickEvent event) {
         if (event.phase == TickEvent.Phase.START) {
             event.player.getCapability(PlayerProneData.CAPABILITY).ifPresent(PlayerProneData::playerTick);
+            onPlayerSprint(event.player);
         }
     }
 
-    /**
-     * Must be equal to LivingEntity#SPEED_MODIFIER_SPRINTING_UUID, duplicated here to avoid use of AccessTransformer
-     */
-    private static final UUID LE_SPRINT_MOD_UUID = UUID.fromString("662A6B8D-DA3E-4C1C-8813-96EA6097278D");
     //TODO: Add Sprint Event
     public void onPlayerSprint(Player player) {
         if (player.getForcedPose() == Pose.SWIMMING && !ConfigOptions.instance().sprintingAllowed.get()) {
-            player.getAttribute(Attributes.MOVEMENT_SPEED).removeModifier(LE_SPRINT_MOD_UUID);
+            player.setSprinting(false);
         }
     }
 
@@ -120,7 +113,9 @@ public class GoProne {
 
     private void gatherData(GatherDataEvent event) {
         var gen = event.getGenerator();
+        PackOutput packOutput = gen.getPackOutput();
+        CompletableFuture<HolderLookup.Provider> lookupProvider = event.getLookupProvider();
 //        gen.addProvider(event.includeClient(), new AALangProvider(gen));
-        gen.addProvider(event.includeServer(), new RidingCheck.TagsProvider(gen, event.getExistingFileHelper()));
+        gen.addProvider(event.includeServer(), new RidingCheck.TagsProvider(packOutput, lookupProvider, event.getExistingFileHelper()));
     }
 }

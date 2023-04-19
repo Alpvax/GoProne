@@ -1,5 +1,6 @@
 package alpvax.mc.goprone;
 
+import alpvax.mc.goprone.config.ConfigOptions;
 import alpvax.mc.goprone.validation.Checks;
 import alpvax.mc.goprone.validation.RidingCheck;
 import net.minecraft.core.Direction;
@@ -75,6 +76,9 @@ public class PlayerProneData {
     private void updateProneState() {
         if (shouldBeProne && failedChecks.isEmpty()) {
             player.setForcedPose(Pose.SWIMMING);
+            if (!ConfigOptions.instance().sprintingAllowed.get()) {
+                player.setSprinting(false);
+            }
         } else {
             player.setForcedPose(null);
         }

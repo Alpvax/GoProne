@@ -5,7 +5,7 @@ plugins {
     id 'org.parchmentmc.librarian.forgegradle' version '1.+'
 }
 
-version = "${mcversion}-2.1.0"
+version = "${mcversion}-${modversion}"
 group = 'alpvax.mc.goprone' // http://maven.apache.org/guides/mini/guide-naming-conventions.html
 archivesBaseName = 'goprone'
 

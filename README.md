@@ -27,7 +27,7 @@ Part of the motivation for me taking over the fabric port is so that I can hopef
 
 [Download from Curseforge](https://www.curseforge.com/minecraft/mc-mods/goprone-fabric)
 
-Requires [Fabric](https://fabricmc.net/use/) and [Fabric API](https://www.curseforge.com/minecraft/mc-mods/fabric-api)
+Requires [Fabric](https://fabricmc.net/use/), [Fabric API](https://www.curseforge.com/minecraft/mc-mods/fabric-api) and [the Forge Config API Port for Fabric](https://www.curseforge.com/minecraft/mc-mods/forge-config-api-port-fabric)
 
 Originally ported by VidTu ([Original repo here](https://github.com/VidTu/GoProne-Fabric)) with my permission.
 
@@ -35,7 +35,8 @@ This version is not compatible with Forge (i.e. you can't play on Forge servers 
 Part of the motivation for me taking over the fabric port is so that I can hopefully overcome that obstacle.
 
 ### Pre-refactor (Pre-1.19.4) Differences from Forge version
-Server config can be found in `config/goprone.json` and uses JSON instead of TOML.
+Does not require the Forge Config API Port.
+The server config can be found in `config/goprone.json` and uses JSON instead of TOML.
 
 ### Post refactor
 The config has changed to use [the Forge Config API Port for Fabric](https://www.curseforge.com/minecraft/mc-mods/forge-config-api-port-fabric) in order to make the config files transferrable across versions. The first time you play with the new version it should copy your config settings from the old file to the new format.

@@ -20,4 +20,7 @@ build
 
 # other
 eclipse
-run
+*/run/*
+!Fabric/run/config
+Fabric/run/config/*
+!Fabric/run/config/fabric_loader_dependencies.json

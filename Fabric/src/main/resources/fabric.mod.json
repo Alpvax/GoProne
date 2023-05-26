@@ -1,39 +1,37 @@
 {
     "schemaVersion": 1,
-    "id": "modid",
+    "id": "goprone",
     "version": "${version}",
-  
-    "name": "Example Mod",
-    "description": "This is an example description! Tell everyone what your mod is about!",
+    "name": "GoProne",
+    "description": "Just adds a keybind (default 'C') which sets the player to the crawling pose, allowing them to sneak through 1-block high gaps, without needing to squash something on top of them. When you are allowed to go prone is configurable server side (i.e. in the save folder/serverconfig).",
     "authors": [
-      "Me!"
+        "Alpvax",
+        "VidTu"
     ],
     "contact": {
-      "homepage": "https://fabricmc.net/",
-      "sources": "https://github.com/FabricMC/fabric-example-mod"
+      "homepage": "https://www.curseforge.com/minecraft/mc-mods/goprone-fabric",
+      "sources": "https://github.com/Alpvax/GoProne",
+      "issues": "https://github.com/Alpvax/GoProne/issues"
     },
-  
-    "license": "CC0-1.0",
-    "icon": "assets/modid/icon.png",
-  
+    "license": "All rights reserved",
+    "icon": "GPLogo.png",
     "environment": "*",
     "entrypoints": {
-      "main": [
-        "com.example.examplemod.ExampleMod"
-      ]
+        "client": [
+          "alpvax.mc.goprone.fabric.ClientProxy"
+        ],
+        "main": [
+          "alpvax.mc.goprone.fabric.GoProne"
+        ]
     },
     "mixins": [
-      "modid.mixins.json"
+        "goprone.mixins.json"
     ],
-  
     "depends": {
-      "fabricloader": ">=0.14",
-      "fabric": "*",
-      "minecraft": "1.19.3",
-      "java": ">=17"
-    },
-    "suggests": {
-      "another-mod": "*"
+        "fabricloader": ">=0.14.19",
+        "fabric-api": "*",
+        "minecraft": "~1.19.4",
+        "java": ">=17"
     }
   }
   

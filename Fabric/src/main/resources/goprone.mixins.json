@@ -1,0 +1,13 @@
+{
+    "required": true,
+    "minVersion": "0.8",
+    "package": "alpvax.mc.goprone.fabric.mixins",
+    "compatibilityLevel": "JAVA_16",
+    "mixins": [
+      "EntityMixin",
+      "PlayerMixin",
+      "ServerPlayerMixin",
+      "LocalPlayerMixin"
+    ],
+    "client": []
+}

@@ -52,7 +52,7 @@ public class PlayerProneData {
         if (Checks.CLIMBING.updateFailed(player.onClimbable(), failedChecks)) {
             markDirty();
         }
-        if (Checks.FLYING.updateFailed(!player.isOnGround(), failedChecks)) {
+        if (Checks.FLYING.updateFailed(!player.onGround(), failedChecks)) {
             markDirty();
         }
         {

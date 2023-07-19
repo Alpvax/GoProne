@@ -1,5 +1,5 @@
 plugins {
-    id "fabric-loom" version "1.0-SNAPSHOT"
+    id "fabric-loom" version "${loom_version}"
     id "maven-publish"
     id "idea"
 }
@@ -30,7 +30,7 @@ dependencies {
     // Configured
 //    modLocalRuntime "curse.maven:configured-fabric-667378:4166864"
     // Mod Menu
-    modLocalRuntime "com.terraformersmc:modmenu:6.2.2"
+//    modLocalRuntime "com.terraformersmc:modmenu:6.2.2"
 }
 
 loom {

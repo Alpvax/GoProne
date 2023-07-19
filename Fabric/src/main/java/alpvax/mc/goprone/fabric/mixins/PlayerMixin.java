@@ -37,7 +37,7 @@ public abstract class PlayerMixin extends LivingEntity implements IForcePose {
     @Inject(method = "jumpFromGround", at = @At("HEAD"), cancellable = true)
     public void jump(CallbackInfo ci) {
         var player = getAsPlayer();
-        if (player.isOnGround() && player.getPose() == Pose.SWIMMING && !ConfigOptions.instance().jumpingAllowed.get()) {
+        if (player.onGround() && player.getPose() == Pose.SWIMMING && !ConfigOptions.instance().jumpingAllowed.get()) {
             ci.cancel();
         }
     }

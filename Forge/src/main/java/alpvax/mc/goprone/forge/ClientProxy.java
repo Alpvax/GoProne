@@ -30,8 +30,11 @@ public class ClientProxy {
     ) {
         @Override
         public void setDown(boolean down) {
+            var wasDown = isDown();
             super.setDown(down);
-            sendUpdate();
+            if (wasDown != down) {
+                sendUpdate();
+            }
         }
     };
     public static final AlwaysToggleMapping toggleProne = new AlwaysToggleMapping(

@@ -99,13 +99,14 @@ public class GoProne {
 
     @SubscribeEvent(priority = EventPriority.LOWEST)
     public void onPlayerJump(LivingEvent.LivingJumpEvent event) {
-        if (event.getEntity().level.isClientSide) {
+        //noinspection resource
+        if (event.getEntity().level().isClientSide) {
             var disabled = DistExecutor.unsafeCallWhenOn(Dist.CLIENT, () -> ClientProxy::isDisabled);
             if (disabled != null && disabled) {
                 return;
             }
         }
-        if (event.getEntity() instanceof Player player && player.isOnGround() && player.getPose() == Pose.SWIMMING &&
+        if (event.getEntity() instanceof Player player && player.onGround() && player.getPose() == Pose.SWIMMING &&
             !ConfigOptions.instance().jumpingAllowed.get()) {
             var motion = player.getDeltaMovement();
             player.setDeltaMovement(motion.x, 0, motion.z); //set y motion to 0

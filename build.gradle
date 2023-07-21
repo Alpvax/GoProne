@@ -1,10 +1,12 @@
 subprojects {
-    
+
     apply plugin: "java"
     
     java.toolchain.languageVersion = JavaLanguageVersion.of(17)
     // java.withSourcesJar()
     // java.withJavadocJar()
+
+    archivesBaseName = "${mod_name}-${project.name.toLowerCase()}-${minecraft_version}"
         
     jar {
         // from(rootProject.file("LICENSE")) {
@@ -15,7 +17,7 @@ subprojects {
                 "Specification-Title"     : mod_name,
                 "Specification-Vendor"    : "Alpvax",
                 "Specification-Version"   : project.jar.archiveVersion,
-                "Implementation-Title"    : project.name,
+                "Implementation-Title"    : "${mod_id}-${project.name.toLowerCase()}",
                 "Implementation-Version"  : project.jar.archiveVersion,
                 "Implementation-Vendor"   : "Alpvax",
                 "Implementation-Timestamp": new Date().format("yyyy-MM-dd'T'HH:mm:ssZ"),
@@ -24,6 +26,35 @@ subprojects {
                 "Built-On-Minecraft"      : minecraft_version
             ])
         }
+    }
+
+    // This block of code expands all declared replace properties in the specified resource targets.
+    // A missing property will result in an error. Properties are expanded using ${} Groovy notation.
+    // When "copyIdeResources" is enabled, this will also run before the game launches in IDE environments.
+    // See https://docs.gradle.org/current/dsl/org.gradle.language.jvm.tasks.ProcessResources.html
+    tasks.named("processResources", ProcessResources).configure {
+        if (project.hasProperty("dependantProjects")) {
+            project.findProperty("dependantProjects").forEach {
+                from it.sourceSets.main.resources
+            }
+        }
+        var replaceProperties = [
+                minecraft_version: minecraft_version, minecraft_version_range: minecraft_version_range,
+                packmeta_version: packmeta_version,
+                mod_id: mod_id, mod_name: mod_name, mod_version: version, mod_author: mod_author,
+                github: github, forge_curse: forge_curse, fabric_curse: fabric_curse,
+                forge_version: forge_version, forge_version_range: forge_version_range,
+                loader_version_range: loader_version_range,
+                fabric_version: fabric_version, fabric_loader_version: fabric_loader_version,
+                loom_version: loom_version,
+                //mod_license: mod_license,
+                //mod_authors: mod_authors, mod_description: mod_description,
+        ]
+
+        filesMatching(["META-INF/mods.toml", "pack.mcmeta", "fabric.mod.json"]) {
+            expand replaceProperties + [project: project]
+        }
+        // from project(":Common").sourceSets.main.resources
     }
 
     // sourcesJar {

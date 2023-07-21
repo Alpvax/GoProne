@@ -6,10 +6,17 @@ plugins {
     id 'org.parchmentmc.librarian.forgegradle' version '1.+'
 }
 
-archivesBaseName = "${mod_name}-forge-${minecraft_version}"
+
+var dependencyProjects = [
+        project(":Common"),
+]
+ext { dependencyProjects }
+dependencyProjects.forEach {
+    project.evaluationDependsOn(it.path)
+}
 
 minecraft {
-    mappings channel: 'parchment', version: /*"${parchment_mcversion}-*/"${parchment_version}-${minecraft_version}"
+    mappings channel: 'parchment', version: "${(project.hasProperty("parchment_forge_prefix") ? "${parchment_forge_prefix}-": "") + parchment_version}-${minecraft_version}"
     
     // When true, this property will have all Eclipse/IntelliJ IDEA run configurations run the "prepareX" task for the given run configuration before launching the game.
     // In most cases, it is not necessary to enable.
@@ -27,7 +34,7 @@ minecraft {
     // generateRunFolders = true
     
     if (project.hasProperty("forge_ats_enabled") && project.findProperty("forge_ats_enabled").toBoolean()) {
-        // This location is hardcoded in Forge and can not be changed.// This property enables access transformers for use in development.
+        // This property enables access transformers for use in development.
         // They will be applied to the Minecraft artifact.
         // The access transformer file can be anywhere in the project.
         // However, it must be at "META-INF/accesstransformer.cfg" in the final mod jar to be loaded by Forge.
@@ -67,16 +74,16 @@ minecraft {
 
         // This run config launches GameTestServer and runs all registered gametests, then exits.
         // By default, the server will crash when no gametests are provided.
-//        gameTestServer {
-//            taskName "Server"
-//            property 'forge.enabledGameTestNamespaces', mod_id
-//            mods {
-//                modServerRun {
-//                    source sourceSets.main
-//                    source project(":Common").sourceSets.main
-//                }
-//            }
-//        }
+        gameTestServer {
+            taskName "Server (GUI)"
+            property 'forge.enabledGameTestNamespaces', mod_id
+            mods {
+                modServerRun {
+                    source sourceSets.main
+                    source project(":Common").sourceSets.main
+                }
+            }
+        }
         data {
             args "--mod", mod_id, "--all", "--output", file("../Common/src/generated/resources/"), "--existing", file("src/main/resources/")
             taskName "Data"
@@ -92,39 +99,23 @@ minecraft {
 
 dependencies {
     minecraft "net.minecraftforge:forge:${minecraft_version}-${forge_version}"
-    compileOnly project(":Common")
+    dependencyProjects.forEach {
+        compileOnly it
+    }
 
     //implementation fg.deobf("curse.maven:configured-457570:4462894")
 }
 
-tasks.withType(JavaCompile) {
-    source(project(":Common").sourceSets.main.allSource)
+
+jar {
+    from sourceSets.main.output
+    dependencyProjects.forEach {
+        from it.sourceSets.main.output
+    }
+
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+    finalizedBy("reobfJar")
 }
-
-// This block of code expands all declared replace properties in the specified resource targets.
-// A missing property will result in an error. Properties are expanded using ${} Groovy notation.
-// When "copyIdeResources" is enabled, this will also run before the game launches in IDE environments.
-// See https://docs.gradle.org/current/dsl/org.gradle.language.jvm.tasks.ProcessResources.html
-//tasks.named('processResources', ProcessResources).configure {
-//    var replaceProperties = [
-//            minecraft_version: minecraft_version, minecraft_version_range: minecraft_version_range,
-//            forge_version: forge_version, forge_version_range: forge_version_range,
-//            loader_version_range: loader_version_range,
-//            mod_id: mod_id, mod_name: mod_name, mod_license: mod_license, mod_version: mod_version,
-//            mod_authors: mod_authors, mod_description: mod_description,
-//    ]
-//    inputs.properties replaceProperties
-//
-//    filesMatching(['META-INF/mods.toml', 'pack.mcmeta']) {
-//        expand replaceProperties + [project: project]
-//    }
-//}     
-processResources {
-    from project(":Common").sourceSets.main.resources
-}
-
-
-jar.finalizedBy("reobfJar")
 
 publishing {
     publications {

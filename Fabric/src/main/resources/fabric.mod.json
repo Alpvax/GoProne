@@ -28,7 +28,7 @@
         "goprone.mixins.json"
     ],
     "depends": {
-        "fabricloader": "${fabric_loader_version}",
+        "fabricloader": "~${fabric_loader_version}",
         "fabric-api": "*",
         "minecraft": "~${minecraft_version}",
         "java": ">=17",
